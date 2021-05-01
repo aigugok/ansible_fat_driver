@@ -1,0 +1,14 @@
+- hosts: nginx
+  become: true
+  roles:
+    - nginx
+
+- hosts: nexus
+  become: true
+  roles:
+    - nexus
+
+- hosts: gitlab
+  become: true
+  roles:
+    - gitlab

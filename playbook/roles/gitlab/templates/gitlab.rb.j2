@@ -1,0 +1,4 @@
+external_url '{{ gitlab_full_url }}'
+web_server['external_users'] = ['{{ gitlab_web_user }}']
+nginx['enable'] = {{ gitlab_nginx_enabled }}
+

@@ -1,5 +1,5 @@
-- hosts: nexus
+- hosts: gitlab
   become: true
   roles:
     - nginx
-    - nexus
+    - gitlab

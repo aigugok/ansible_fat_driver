@@ -6,6 +6,8 @@
 
 - name: Nexus vhost proxy
   import_tasks: "nexus_nginx.yml"
+  tags:
+    - nexus_proxy
 
 - name: Nexus post install
   import_tasks: "nexus_post_install.yml"

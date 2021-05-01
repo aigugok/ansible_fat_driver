@@ -1,0 +1,71 @@
+- name: Install prerequisites
+  apt:
+    name:
+      - curl
+      - sudo
+    state: present
+    update_cache: true
+
+- name: Add gitlab repo
+  apt_repository:
+    repo: deb https://packages.gitlab.com/gitlab/gitlab-ce/debian/ buster main
+    state: present
+    filename: gitlab_gitlab-ce
+    update_cache: false
+
+- name: Add Gitlab key
+  apt_key:
+    url: https://packages.gitlab.com/gpg.key
+    state: present 
+
+- name: Gather packages list
+  package_facts:
+    manager: auto
+
+#- debug: 
+    #msg: "{{ansible_facts.packages}}" 
+
+- name: Install or upgrade Gitlab
+  apt:
+    name: gitlab-ce
+    state: latest
+    update_cache: true
+  when: "'gitlab-ce' not in ansible_facts.packages or gitlab_upgrade"
+
+- name: Create gitlab.rb config file
+  template:
+    src: "gitlab.rb.j2"
+    dest: "/etc/gitlab/gitlab.rb"
+    mode: 0600
+    owner: root
+    group: root
+  notify:
+    - reconfigure gitlab
+
+- name: Flush or execute current handlers
+  meta: flush_handlers
+
+- name: Create gitlab site config
+  template:
+    src: "gitlab-vhost.conf.j2"
+    dest: "/etc/nginx/sites-available/gitlab"
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - reload nginx
+
+- name: Create gitlab site link
+  file:
+    path: "/etc/nginx/sites-enabled/gitlab"
+    src: "/etc/nginx/sites-available/gitlab"
+    state: link
+  notify:
+    - reload nginx
+  when: not ansible_check_mode
+
+- name: Add or replace /etc/hosts gitlab record
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ansible_default_ipv4.address}}\t{{gitlab_server_name}}"
+    state: present

@@ -45,6 +45,12 @@
   notify: 
     - nexus unit reload
 
+- name: Enable nexus service
+  systemd:
+    name: nexus.service
+    enabled: yes
+    daemon_reload: yes
+
 - name: Download latest nexus version
   get_url:
     url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz

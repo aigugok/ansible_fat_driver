@@ -1,0 +1,5 @@
+gitlab_upgrade: false
+gitlab_server_name: 'gitlab.develop.local'
+gitlab_full_url: 'http://{{ gitlab_server_name }}'
+gitlab_web_user: 'www-data'
+gitlab_nginx_enabled: 'false'
