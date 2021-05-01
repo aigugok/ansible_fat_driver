@@ -1,0 +1,8 @@
+nexus_min_heap: "1024m"
+nexus_max_heap: " {{nexus_min_heap}}"
+nexus_direct_memory : "{{nexus_min_heap}}"
+nexus_user: "nexus"
+nexus_group: "{{ nexus_user }}"
+nexus_install_dir: "/opt"
+nexus_upgrade: false
+nexus_version_running: ""

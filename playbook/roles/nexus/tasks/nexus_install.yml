@@ -1,0 +1,129 @@
+
+- name: Get latest nexus version from url
+  uri:
+    url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    method: CONNECT
+    status_code: 302
+  register: nexus_latest
+  check_mode: no
+
+
+- name: Extract nexus version from url
+  set_fact:
+        nexus_latest_version: "{{ nexus_latest.location | regex_search(regexp, '\\1') |first }}"
+  vars:
+        regexp: '^https://.*nexus-(\d+\.\d+\.\d+-\d+)-unix.tar.gz'        
+
+- name: Check if nexus installed
+  stat:
+    path: "{{ nexus_install_dir }}/nexus"
+  register: nexus_link
+
+- name: Extract nexus current version
+  set_fact:
+    nexus_version_running: "{{ nexus_link.stat.lnk_target | regex_search(regexp, '\\1') | first }}"
+  vars:
+    regexp: '^.*nexus-(\d+\.\d+\.\d+-\d+)'
+  when: 
+    - nexus_link.stat.exists | default(false)
+    - nexus_link.stat.islnk | default(false)
+
+- name: Check and create user
+  user:
+    name: "{{nexus_user}}"
+    group: "{{ nexus_group}}"
+    shell: "/bin/false"
+    state: present
+
+- name: Create nexus service file
+  template:
+    src: nexus.service.j2
+    dest: /etc/systemd/system/nexus.service 
+    mode: 0644
+    owner: root
+    group: root
+  notify: 
+    - nexus unit reload
+
+- name: Download latest nexus version
+  get_url:
+    url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    dest: "{{ nexus_install_dir }}"
+  when: not ansible_check_mode
+
+- name: Package name 
+  set_fact: 
+    nexus_package: "nexus-{{ nexus_latest_version }}-unix.tar.gz"
+    
+- name: First install or upgrade
+  unarchive:
+    src: "{{nexus_install_dir}}/{{ nexus_package}}"
+    dest: "{{ nexus_install_dir }}"
+    creates: "{{ nexus_install_dir }}/nexus-{{ nexus_latest_version }}"
+    remote_src: yes
+  when: ((not nexus_link.stat.exists) or (nexus_version_running != nexus_latest_version and nexus_upgrade)) and (not ansible_check_mode) #check previous installation and upgrade if nexus_upgrade = true
+  notify:
+    - nexus stop
+
+- name: Flush or execute current handlers
+  meta: flush_handlers
+
+- name: Create a symbolic link to latest nexus
+  file:
+    src: "{{ nexus_install_dir }}/nexus-{{ nexus_latest_version }}"
+    dest: "{{ nexus_install_dir }}/nexus"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+    state: link
+  notify:
+    - nexus restart
+    - nexus wait port
+  when: ((not nexus_link.stat.exists) or (nexus_version_running != nexus_latest_version and nexus_upgrade)) and (not ansible_check_mode) #check previous installation and upgrade if nexus_upgrade = true
+
+
+- name: Replace JVM min heap size
+  lineinfile:
+    path: "{{ nexus_install_dir }}/nexus-{{nexus_latest_version }}/bin/nexus.vmoptions"
+    regexp: "^-Xms.*"
+    line: "-Xms{{ nexus_min_heap }}"
+  notify:
+    - nexus restart
+    - nexus wait port
+  when: not ansible_check_mode
+
+- name: Replace JVM min heap size
+  lineinfile:
+    path: "{{ nexus_install_dir }}/nexus-{{nexus_latest_version }}/bin/nexus.vmoptions"
+    regexp: "^-Xms.*"
+    line: "-Xms{{ nexus_min_heap }}"
+  notify:
+    - nexus restart
+    - nexus wait port
+  when: not ansible_check_mode
+
+- name: Replace JVM direct memory size 
+  lineinfile:
+    path: "{{ nexus_install_dir }}/nexus-{{nexus_latest_version }}/bin/nexus.vmoptions"
+    regexp: "^-XX:MaxDirectMemorySize=.*"
+    line: "-XX:MaxDirectMemorySize={{ nexus_direct_memory }}"
+  notify:
+    - nexus restart
+    - nexus wait port
+  when: not ansible_check_mode
+
+- name: Recursively change ownership of nexus directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    owner: "{{nexus_user}}"
+    group: "{{nexus_group}}"
+  loop:
+    - "{{ nexus_install_dir }}/nexus/"
+    - "{{ nexus_install_dir }}/sonatype-work/"
+
+- name: Flush or execute current handlers
+  meta: flush_handlers
+
+
+

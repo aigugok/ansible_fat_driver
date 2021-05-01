@@ -1,0 +1,10 @@
+- hosts: nginx
+  become: true
+  roles:
+    - nginx
+
+- hosts: nexus
+  become: true
+  roles:
+    - nginx
+    - nexus

@@ -1,0 +1,11 @@
+- name: Check requirements
+  import_tasks: "nexus_requirements.yml"
+
+- name: Install or upgrade
+  import_tasks: "nexus_install.yml"
+
+- name: Nexus vhost proxy
+  import_tasks: "nexus_nginx.yml"
+
+- name: Nexus post install
+  import_tasks: "nexus_post_install.yml"

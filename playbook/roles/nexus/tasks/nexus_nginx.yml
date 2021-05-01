@@ -1,0 +1,20 @@
+- name: Create nexus site config
+  template:
+    src: "nexus-vhost.conf.j2"
+    dest: "/etc/nginx/sites-available/nexus"
+    mode: 0644
+    owner: root
+    group: root
+  notify: 
+    - reload nginx
+
+- name: Create nexus site link
+  file:
+    path: "/etc/nginx/sites-enabled/nexus"
+    src: "/etc/nginx/sites-available/nexus"
+    state: link
+  notify: 
+    - reload nginx
+  when: not ansible_check_mode
+
+
