@@ -1,0 +1,74 @@
+- name: Add gitlab-runner repo
+  apt_repository:
+    repo: deb https://packages.gitlab.com/runner/gitlab-runner/debian/ buster main
+    state: present
+    filename: runner_gitlab-runner
+    update_cache: false
+
+- name: Add Gitlab key
+  apt_key:
+    url: https://packages.gitlab.com/gpg.key
+    state: present 
+
+
+- name: Install or upgrade gitlab-runner
+  apt:
+    name:
+      - gitlab-runner
+      - python-gitlab
+    state: present
+    update_cache: true
+
+
+
+- name: Add gitlab-runner user to group docker
+  user:
+    name: gitlab-runner
+    groups: docker
+    append: yes
+
+- name: Remove file .bash_logout file from gitlab-runner home
+  file:
+    path: "/home/gitlab-runner/.bash_logout"
+    state: absent
+
+- name: Create gitlab-runner config
+  template:
+    src: "config.toml.j2"
+    dest: "/etc/gitlab-runner/config.toml"
+    mode: 0600
+    owner: root
+    group: root
+  notify:
+    - restart gitlab-runner
+
+- name: "Register shell runner"
+  gitlab_runner:
+    api_url: "{{gitlab_full_url}}"
+    api_token: "{{ gitlab_api_token }}"
+    registration_token: "{{ shell_register_token}}"
+    description: "shelltest"
+    state: present
+    active: True
+    tag_list: ['shell_test']
+    run_untagged: False
+    locked: True
+    access_level: not_protected
+  when: register_runner
+
+
+- name: "Register docker runner"
+  gitlab_runner:
+    api_url: "{{gitlab_full_url}}"
+    api_token: "{{ gitlab_api_token }}"
+    registration_token: "{{ docker_register_token}}"
+    description: "dockertest"
+    state: present
+    active: True
+    tag_list: ['docker']
+    run_untagged: False
+    locked: True
+    access_level: not_protected
+  when: register_runner
+
+

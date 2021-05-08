@@ -1,0 +1,23 @@
+- name: Add docker repo
+  apt_repository:
+    repo: deb https://download.docker.com/linux/debian buster stable
+    state: present
+    filename: docker
+    update_cache: false
+
+- name: Add Docker key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present 
+
+
+- name: Install or upgrade docker
+  apt:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+    update_cache: true
+
+

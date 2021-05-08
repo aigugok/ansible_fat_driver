@@ -12,3 +12,10 @@
   become: true
   roles:
     - gitlab
+
+
+- hosts: gitlab
+  become: true
+  roles:
+    - docker
+    - gitlab-runner

@@ -1,0 +1,7 @@
+runner_volumes: 
+  - "/var/run/docker.sock:/var/run/docker.sock"
+  - "/cache"
+
+runner_extra_hosts:
+  -  "gitlab.develop.local:192.168.55.1"
+  -  "nexus.develop.local:192.168.55.1"
