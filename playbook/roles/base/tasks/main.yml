@@ -1,0 +1,7 @@
+- name: Install host requirements
+  apt:
+    name:
+    - python-apt
+    state: present
+    update_cache: yes
+  check_mode: no
