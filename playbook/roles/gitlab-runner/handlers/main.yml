@@ -2,3 +2,4 @@
   systemd:
     name: gitlab-runner.service
     state: restarted
+  when: not ansible_check_mode

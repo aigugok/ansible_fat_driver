@@ -3,14 +3,19 @@
     path: "{{ nexus_install_dir }}/sonatype-work/nexus3/admin.password"
   register: admin_password_file
 
-- name: Save content admin.password to var
-  set_fact:
-    default_admin_password: "{{ lookup('file', '{{ nexus_install_dir }}/sonatype-work/nexus3/admin.password') }}"
-  when: admin_password_file.stat.exists        
+- name: Save
+  slurp:
+    src:  "{{ nexus_install_dir }}/sonatype-work/nexus3/admin.password"
+  register: default_admin_password
+
+  #- name: Save content admin.password to var
+  #set_fact:
+          #default_admin_password: "{{ lookup('file', '{{ nexus_install_dir }}/sonatype-work/nexus3/admin.password') }}"
+    # when: admin_password_file.stat.exists        
 
 - name: Display debug
   debug:
-    msg: "{{ default_admin_password }}"
+    msg: "{{ default_admin_password['content'] | b64decode}}"
   when: admin_password_file.stat.exists
 
 

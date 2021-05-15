@@ -28,6 +28,12 @@
     - nexus_link.stat.exists | default(false)
     - nexus_link.stat.islnk | default(false)
 
+- name: Check nexus group
+  ansible.builtin.group:
+    name: "{{ nexus_group }}"
+    state: present
+
+
 - name: Check and create user
   user:
     name: "{{nexus_user}}"
@@ -50,6 +56,7 @@
     name: nexus.service
     enabled: yes
     daemon_reload: yes
+  when: not ansible_check_mode
 
 - name: Download latest nexus version
   get_url:

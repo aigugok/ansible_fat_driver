@@ -30,7 +30,7 @@
     name: gitlab-ce
     state: latest
     update_cache: true
-  when: "'gitlab-ce' not in ansible_facts.packages or gitlab_upgrade"
+  when: "('gitlab-ce' not in ansible_facts.packages or gitlab_upgrade) and not ansible_check_mode"
 
 - name: Create gitlab.rb config file
   template:

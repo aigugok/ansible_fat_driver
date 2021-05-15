@@ -1,4 +1,5 @@
 - hosts: remote
   become: true
   roles:
+    - base
     - nginx

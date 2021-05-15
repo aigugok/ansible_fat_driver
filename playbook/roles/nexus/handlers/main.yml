@@ -2,21 +2,27 @@
   systemd:
     daemon_reload: yes
     name: nexus.service
+    # when: not ansible_check_mode
 
 - name: nexus stop
   systemd:
     name: nexus.service
     state: stopped
+    # when: not ansible_check_mode
 
 - name: nexus start
   systemd:
     name: nexus.service
     state: started
+    #  when: not ansible_check_mode
+
 
 - name: nexus restart
   systemd:
     name: nexus.service
     state: restarted
+    #  when: not ansible_check_mode
+
 
 - name: nexus wait port
   wait_for:

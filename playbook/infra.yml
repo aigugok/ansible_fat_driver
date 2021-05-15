@@ -1,21 +1,30 @@
 - hosts: nginx
   become: true
   roles:
+    - base
     - nginx
 
 - hosts: nexus
   become: true
   roles:
+    - base
+    - nginx
+    - nginx
     - nexus
 
 - hosts: gitlab
   become: true
   roles:
+    - base
+    - nginx
+    - nginx
     - gitlab
 
 
-- hosts: gitlab
+- hosts: gitlab-runner
   become: true
   roles:
+    - base
+    - nginx
     - docker
     - gitlab-runner

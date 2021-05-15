@@ -1,5 +1,6 @@
 - hosts: gitlab
   become: true
   roles:
+    - base
     - nginx
     - gitlab

@@ -18,6 +18,7 @@
       - python-gitlab
     state: present
     update_cache: true
+  when: not ansible_check_mode
 
 
 
