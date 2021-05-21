@@ -9,14 +9,12 @@
   roles:
     - base
     - nginx
-    - nginx
     - nexus
 
 - hosts: gitlab
   become: true
   roles:
     - base
-    - nginx
     - nginx
     - gitlab
 
