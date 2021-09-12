@@ -13,3 +13,5 @@
 
 [gitlab-runner]
 192.168.55.1
+
+#some changes on hosts inventory file - pull request test
